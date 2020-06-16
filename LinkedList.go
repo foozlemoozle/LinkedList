@@ -1,3 +1,6 @@
+/// Created by Kirk George
+/// Copyright: Kirk George
+
 package LinkedList
 
 type Node struct {
@@ -7,6 +10,7 @@ type Node struct {
 }
 
 type iterator struct {
+	index int
 	*Node
 }
 
@@ -49,6 +53,7 @@ type IIterator interface {
 	Current() (interface{}, bool)
 	MoveNext() (interface{}, bool)
 	MovePrev() (interface{}, bool)
+	Index() int
 }
 
 func List() IList {
@@ -64,7 +69,7 @@ func Stack() IStack {
 }
 
 func (list *LinkedList) Iterator() IIterator {
-	return &iterator{Node: list.head}
+	return &iterator{Node: list.head, index: 0}
 }
 
 func (iter *iterator) Current() (interface{}, bool) {
@@ -77,6 +82,7 @@ func (iter *iterator) Current() (interface{}, bool) {
 
 func (iter *iterator) MoveNext() (interface{}, bool) {
 	if iter.Node != nil && iter.next != nil {
+		iter.index++
 		iter.Node = iter.next
 		return iter.value, true
 	} else {
@@ -86,11 +92,16 @@ func (iter *iterator) MoveNext() (interface{}, bool) {
 
 func (iter *iterator) MovePrev() (interface{}, bool) {
 	if iter.Node != nil && iter.prev != nil {
+		iter.index--
 		iter.Node = iter.prev
 		return iter.value, true
 	} else {
 		return nil, false
 	}
+}
+
+func (iter *iterator) Index() int {
+	return iter.index
 }
 
 func (list *LinkedList) Count() int {
@@ -161,9 +172,6 @@ func (list *LinkedList) Pop() interface{} {
 		list.head = nil
 	}
 
-	remove.next = nil
-	remove.prev = nil
-
 	list.count--
 
 	if list.count == 0 {
@@ -223,8 +231,6 @@ func (list *LinkedList) Remove(value interface{}) {
 		if cur.value == value {
 			prev := cur.prev
 			next := cur.next
-			cur.prev = nil
-			cur.next = nil
 
 			if prev != nil {
 				prev.next = next
@@ -253,8 +259,6 @@ func (list *LinkedList) RemoveAt(index int) interface{} {
 		if i == index {
 			prev := cur.prev
 			next := cur.next
-			cur.prev = nil
-			cur.next = nil
 
 			if prev != nil {
 				prev.next = next
